@@ -1,16 +1,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const MongoClient = require('mongodb').MongoClient;
 const cors = require('cors');
 const Users = require('./models/Users');
-
+const bodyParser = require('body-parser');
 const app = express();
 
 // const initialisePassport = require('./passport-config')
 // const passport = require('passport')
 // initialisePassport(passport)
 
-app.use(express.json());
+app.use(bodyParser.json());
 app.use(cors());
 
 
@@ -29,7 +28,7 @@ app.get('/', (req,res) => {
     res.send('Home page for users');
 })
 
-app.get('/login', (req, res) => {
+app.get('/users/login', (req, res) => {
     res.render('login.ejs')
 })
 
@@ -40,7 +39,8 @@ app.get('/users', (req,res) => {
     })
 })
 
-app.post('/login', async (req, res) => {
+app.post('/users/login', async (req, res) => {
+    console.log(req.body.username)
     const user = await Users.findOne( {username: req.body.username} )
     if(user==null){
         return res.status(400).send('Could not find user');
@@ -57,9 +57,10 @@ app.post('/login', async (req, res) => {
 })
 
 // Connect to database
-const url = 'mongodb+srv://khairi:password21@cluster0.hnh05.mongodb.net/Test?retryWrites=true&w=majority'
+const url = 'mongodb+srv://khairi:password21@cluster0.hnh05.mongodb.net/Users?retryWrites=true&w=majority'
 mongoose.connect(url,
     ()=>{
+        useMongoClient: true;
         console.log('Connected to mongoDB...');
     }
 )

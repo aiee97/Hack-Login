@@ -1,11 +1,8 @@
-if (process.env.NODE_ENV !== 'production'){
-    require('dotenv').config()
-}
-
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const Users = require('./models/Users');
+<<<<<<< HEAD
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
 const passport = require('passport')
@@ -22,32 +19,34 @@ initialisePassport(
 const users = []
 
 const app = express();
+=======
+const bodyParser = require('body-parser');
+const app = express();
+const fileUpload = require('express-fileupload');
+
+// const initialisePassport = require('./passport-config')
+// const passport = require('passport')
+// initialisePassport(passport)
+
+>>>>>>> db491c47079e3e7c744ad8bf7edd6e577595759d
 app.use(bodyParser.json());
 app.use(cors());
-
-app.set('view-engine', 'ejs')
-app.use(express.urlencoded({extend : false}))
-app.use(flash())
-app.use(session({
-    secret : process.env.SESSION_SECRET,
-    resave : false,
-    saveUninitialized : false
-}))
-app.use(passport.initialize())
-app.use(passport.session())
-
-
-
+app.use(fileUpload());
 
 // Routes 
 app.get('/', (req, res) => {
+<<<<<<< HEAD
     res.render('index.ejs')
+=======
+    res.render('index.ejs', { name: "Kyle"})
+>>>>>>> db491c47079e3e7c744ad8bf7edd6e577595759d
 })
 
 app.get('/login', (req, res) => {
     res.render('login.ejs')
 })
 
+<<<<<<< HEAD
 app.post('/login', passport.authenticate('local',{
     successRedirect : '/',
     failureRedirect : '/login',
@@ -58,10 +57,14 @@ app.post('/login', passport.authenticate('local',{
     res.render('register.ejs')
 })*/
 
+=======
+*/
+>>>>>>> db491c47079e3e7c744ad8bf7edd6e577595759d
 app.get('/', (req,res) => {
     res.send('Home page for users');
 })
 
+<<<<<<< HEAD
 app.get('/users', (req,res) => {
     User.find()
     .then(data=>{
@@ -86,6 +89,23 @@ app.get('/users', (req,res) => {
 
 app.post('/users/login', async (req, res) => {
     const user = await User.findOne( {username: req.body.username} )
+=======
+app.get('/users/login', (req, res) => {
+    res.render('login.ejs')
+})
+
+app.get('/users', (req,res) => {
+    Users.find({})
+    .then(data =>{
+        res.json(data)
+    })
+})
+
+app.post('/users/login', async (req, res) => {
+    console.log(req.body.msg)
+    console.log(req.files)
+    const user = await Users.findOne( {username: req.body.username} )
+>>>>>>> db491c47079e3e7c744ad8bf7edd6e577595759d
     if(user==null){
         return res.status(400).send('Could not find user');
     }
@@ -93,7 +113,7 @@ app.post('/users/login', async (req, res) => {
         if(await bcrypt.compare(req.body.password, user.password)){
             res.send('Login success');
         } else{
-            res.send('Password incorrect')
+            res.send('Password incorrect');
         }
     } catch{
         res.status(500).send('Error');
@@ -101,9 +121,10 @@ app.post('/users/login', async (req, res) => {
 })
 
 // Connect to database
-const url = 'mongodb+srv://khairi:password21@cluster0.hnh05.mongodb.net/Test?retryWrites=true&w=majority'
+const url = 'mongodb+srv://khairi:' + process.env.DB_PASSWORD +' @cluster0.hnh05.mongodb.net/Users?retryWrites=true&w=majority'
 mongoose.connect(url,
     ()=>{
+        useMongoClient: true;
         console.log('Connected to mongoDB...');
     }
 )

@@ -7,7 +7,7 @@ const bodyParser = require('body-parser');
 const passport = require('passport')
 const flash = require('express-flash')
 const session = require('express-session')
-
+/*
 const initialisePassport = require('./passport-config')
 initialisePassport(
     passport, 
@@ -15,15 +15,27 @@ initialisePassport(
     id => users.find(user => user.id === id)
 )
 
-const users = []
-
+const users = [{username:"username5",password:"password5"}];
+*/
 const app = express();
+
+app.set('view-engine', 'ejs')
+//app.use(express.urlencoded({extend : false}))
+//app.use(flash())
+/*app.use(session({
+    secret : process.env.SESSION_SECRET,
+    resave : false,
+    saveUninitialized : false
+}))
+
+app.use(passport.initialize())
+//app.use(passport.session())
 //const fileUpload = require('express-fileupload');
 
 // const initialisePassport = require('./passport-config')
 // const passport = require('passport')
 // initialisePassport(passport)
-
+*/
 app.use(bodyParser.json());
 app.use(cors());
 //app.use(fileUpload());
@@ -33,16 +45,16 @@ app.get('/', (req, res) => {
     res.render('index.ejs')
 })
 
-app.get('/login', (req, res) => {
+app.get('/users/login', (req, res) => {
     res.render('login.ejs')
 })
-
-app.post('/login', passport.authenticate('local',{
+/*
+app.post('/users/login', passport.authenticate('local',{
     successRedirect : '/',
-    failureRedirect : '/login',
+    failureRedirect : '/users/login',
     failureFlash : true
 }))
-
+*/
 /*app.get('/register', (req, res) => {
     res.render('register.ejs')
 })*/
@@ -52,14 +64,14 @@ app.get('/', (req,res) => {
 })
 
 app.get('/users', (req,res) => {
-    User.find()
+    Users.find()
     .then(data=>{
         res.json(data)
     })
 })
 
 /*app.post('/users/register', async (req, res) => {
-    const user = new User({
+    const user = new Users({
         username: req.body.username,
         password: req.body.password
     })
@@ -74,12 +86,12 @@ app.get('/users', (req,res) => {
 })*/
 
 app.post('/users/login', async (req, res) => {
-    const user = await User.findOne( {username: req.body.username} )
+    const user = await Users.findOne( {username: req.body.username} )
     if(user==null){
         return res.status(400).send('Could not find user');
     }
     try{
-        if(await bcrypt.compare(req.body.password, user.password)){
+        if(await req.body.password === user.password){
             res.send('Login success');
         } else{
             res.send('Password incorrect');
@@ -99,6 +111,6 @@ mongoose.connect(url,
 )
 
 
-// Launch server on port 3005
+// Launch server on port 3000
 const port = process.env.PORT || 3000  
 app.listen(port, ()=>console.log(`Listening on port ${port}...`)) 

@@ -1,27 +1,61 @@
+if (process.env.NODE_ENV !== 'production'){
+    require('dotenv').config()
+}
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const User = require('./models/User');
 const bcrypt = require('bcrypt');
 const bodyParser = require('body-parser');
+const passport = require('passport')
+const flash = require('express-flash')
+const session = require('express-session')
+
+const initialisePassport = require('./passport-config')
+initialisePassport(
+    passport, 
+    username => users.find(user => user.username === username)
+)
+
+const users = []
 
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
+app.set('view-engine', 'ejs')
+app.use(express.urlencoded({extend : false}))
+app.use(flash())
+app.use(session({
+    secret : process.env.SESSION_SECRET,
+    resave : false,
+    saveUninitialized : false
+}))
+app.use(passport.initialize())
+app.use(passport.session())
+
+
+
 
 // Routes 
 app.get('/', (req, res) => {
-    res.render('index.ejs', { name: "Kyle"})
+    res.render('login.ejs')
 })
 
 app.get('/login', (req, res) => {
     res.render('login.ejs')
 })
 
-app.get('/register', (req, res) => {
+app.post('/login', passport.authenticate('local',{
+    successRedirect : '/',
+    failureRedirect : '/login',
+    failureFlash : true
+}))
+
+/*app.get('/register', (req, res) => {
     res.render('register.ejs')
-})
+})*/
 
 app.get('/', (req,res) => {
     res.send('Home page for users');
@@ -34,7 +68,7 @@ app.get('/users', (req,res) => {
     })
 })
 
-app.post('/users/register', async (req, res) => {
+/*app.post('/users/register', async (req, res) => {
     const user = new User({
         username: req.body.username,
         password: req.body.password
@@ -47,7 +81,7 @@ app.post('/users/register', async (req, res) => {
     } catch{
         res.status(500).send('Error');
     }
-})
+})*/
 
 app.post('/users/login', async (req, res) => {
     const user = await User.findOne( {username: req.body.username} )
